@@ -4,9 +4,6 @@
 # Layers are ordered top-down by dependency: each layer may depend on layers below it, but never the reverse.
 # Dependencies target interfaces (ports), not concrete implementations — except for shared packages: utils/, configs/, common/.
 ./
-├── api/
-│   ├── idl/ # Interface definition files (e.g., .proto, .thrift)
-│   └── gen/ # Auto-generated code from IDL definitions
 ├── boot/ # Application entry points — handles environment initialization and dependency injection. Each subdirectory represents a separate executable.
 │   ├── some_cronjob_boot/
 │   └── some_server_boot/
@@ -15,6 +12,7 @@
 ├── app/ # Application layer — orchestrates use cases by composing domain services and repository operations
 │   ├── cronjob/ # Scheduled task (cron job) use cases
 │   ├── handler/ # RPC/HTTP request handlers (controller layer)
+│   ├── middleware/ # Transport middleware (e.g., RPC interceptors, HTTP middleware hooks)
 │   ├── srv/
 │   │   └── some_app_service_impl/ # Application service implementations
 │   └── interfaces.xx # Application service interfaces (ports)
@@ -47,12 +45,14 @@
 │   └── rpc/
 ├── utils/ # Business-aware shared utilities — cross-cutting helpers tied to specific business scenarios, reused across multiple layers
 │   ├── other_utils/
-│   ├── errs/
-│   │   ├── codes.xx # Project-wide error code definitions
-│   │   └── error.xx # Custom error types tailored to the project
-│   └── middleware/ # Transport middleware (e.g., RPC interceptors, HTTP middleware hooks)
+│   └── errs/
+│       ├── codes.xx # Project-wide error code definitions
+│       └── error.xx # Custom error types tailored to the project
 ├── configs/ # Configuration definitions
 │   └── static/ # Static configuration assets (embedded resource files)
+├── api/
+│   ├── idl/ # Interface definition files (e.g., .proto, .thrift)
+│   └── gen/ # Auto-generated code from IDL definitions
 └── common/ # Business-agnostic shared libraries — fully generic code reusable across any project
    ├── other_common/
    └── utils/
