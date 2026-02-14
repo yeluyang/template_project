@@ -1,35 +1,45 @@
 # Project Template
 
+## Dependency Rules
+
+- Layers are ordered **top-down** by dependency: each layer may depend on layers below it, but **never** the reverse.
+- Dependencies target **interfaces** (ports), not concrete implementations — except for shared packages: `api/`, `utils/`, `configs/`, `common/`.
+
+## Project Structure
+
 ```tree
-# Layers are ordered top-down by dependency: each layer may depend on layers below it, but never the reverse.
-# Dependencies target interfaces (ports), not concrete implementations — except for shared packages: utils/, configs/, common/.
-./
-├── boot/ # Application entry points — handles environment initialization and dependency injection. Each subdirectory represents a separate executable.
+.
+├── boot/                          # Entry points & dependency injection
 │   ├── some_cronjob_boot/
 │   └── some_server_boot/
-├── tools/ # Project-specific tooling: build scripts, operational utilities, client CLIs, code generators, etc.
-│   └── some_tools/ # Isolated subdirectory for tools with non-trivial logic spanning multiple files
-├── app/ # Application layer — orchestrates use cases by composing domain services and repository operations
-│   ├── cronjob/ # Scheduled task (cron job) use cases
-│   ├── handler/ # RPC/HTTP request handlers (controller layer)
-│   ├── middleware/ # Transport middleware (e.g., RPC interceptors, HTTP middleware hooks)
+│
+├── tools/                         # Build scripts, CLIs, code generators
+│   └── some_tools/
+│
+├── app/                           # Application layer (use case orchestration)
+│   ├── cronjob/                   #   Scheduled task use cases
+│   ├── handler/                   #   RPC / HTTP request handlers
+│   ├── middleware/                #   Transport middleware & interceptors
 │   ├── srv/
-│   │   └── some_app_service_impl/ # Application service implementations
-│   └── interfaces.xx # Application service interfaces (ports)
-├── domain/ # Domain layer — core business logic, independent of infrastructure and transport concerns
-│   ├── entity/ # Aggregate roots and complex domain entity clusters
+│   │   └── some_app_service_impl/
+│   └── interfaces.xx              #   Application service interfaces (ports)
+│
+├── domain/                        # Domain layer (core business logic)
+│   ├── entity/                    #   Aggregate roots & entity clusters
 │   │   └── some_domain_entity/
-│   ├── srv/ # Domain service implementations
+│   ├── srv/                       #   Domain service implementations
 │   │   └── some_domain_service_impl/
-│   ├── entities.xx # Simple domain entity definitions (value objects, standalone entities)
-│   └── interfaces.xx # Domain service interfaces (ports)
-├── repo/ # Repository (persistence) layer — encapsulates all data access logic (CRUD operations)
+│   ├── entities.xx                #   Value objects & standalone entities
+│   └── interfaces.xx              #   Domain service interfaces (ports)
+│
+├── repo/                          # Repository layer (data access / CRUD)
 │   ├── entity/
-│   │   └── some_persistent_entity/ # Complex or interrelated persistent entity clusters
-│   ├── some_data_repository_impl/ # Repository interface implementations
-│   ├── entities.xx # Simple persistent entity definitions (data models / table mappings)
-│   └── interfaces.xx # Repository interfaces (ports)
-├── infra/ # Infrastructure adapter layer — wraps external systems (Redis, MySQL, etc.) behind project-specific interfaces
+│   │   └── some_persistent_entity/
+│   ├── some_data_repository_impl/
+│   ├── entities.xx                #   Data models / table mappings
+│   └── interfaces.xx              #   Repository interfaces (ports)
+│
+├── infra/                         # Infrastructure adapters (external systems)
 │   ├── cache/
 │   ├── kv/
 │   ├── mq/
@@ -40,20 +50,39 @@
 │   │   │   └── impl.xx
 │   │   ├── postgres/
 │   │   │   └── impl.xx
-│   │   ├── clients.xx # RDS client/connection registry — distinguishes between different database backends
-│   │   └── interfaces.xx # Unified relational database interface — abstracts over MySQL, PostgreSQL, SQLite, etc.
+│   │   ├── clients.xx             #   Client / connection registry
+│   │   └── interfaces.xx          #   Unified RDS interface
 │   └── rpc/
-├── utils/ # Business-aware shared utilities — cross-cutting helpers tied to specific business scenarios, reused across multiple layers
+│
+├── utils/                         # Business-aware shared utilities
 │   ├── other_utils/
 │   └── errs/
-│       ├── codes.xx # Project-wide error code definitions
-│       └── error.xx # Custom error types tailored to the project
-├── configs/ # Configuration definitions
-│   └── static/ # Static configuration assets (embedded resource files)
-├── api/
-│   ├── idl/ # Interface definition files (e.g., .proto, .thrift)
-│   └── gen/ # Auto-generated code from IDL definitions
-└── common/ # Business-agnostic shared libraries — fully generic code reusable across any project
-   ├── other_common/
-   └── utils/
+│       ├── codes.xx               #   Error code definitions
+│       └── error.xx               #   Custom error types
+│
+├── configs/                       # Configuration definitions
+│   └── static/                    #   Embedded resource files
+│
+├── api/                           # API definitions
+│   ├── idl/                       #   IDL files (.proto, .thrift, …)
+│   └── gen/                       #   Auto-generated code
+│
+└── common/                        # Business-agnostic shared libraries
+    ├── other_common/
+    └── utils/
 ```
+
+## Layer Overview
+
+| Layer       | Path       | Responsibility                                                                                                              |
+| ----------- | ---------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Boot**    | `boot/`    | Application entry points — environment initialization and dependency injection. Each subdirectory is a separate executable. |
+| **Tools**   | `tools/`   | Project-specific tooling: build scripts, operational utilities, client CLIs, code generators.                               |
+| **App**     | `app/`     | Application layer — orchestrates use cases by composing domain services and repository operations.                          |
+| **Domain**  | `domain/`  | Domain layer — core business logic, independent of infrastructure and transport concerns.                                   |
+| **Repo**    | `repo/`    | Repository layer — encapsulates all data access logic (CRUD operations).                                                    |
+| **Infra**   | `infra/`   | Infrastructure adapters — wraps external systems (Redis, MySQL, MQ, etc.) behind project-specific interfaces.               |
+| **Utils**   | `utils/`   | Business-aware shared utilities — cross-cutting helpers tied to specific business scenarios, reused across layers.          |
+| **Configs** | `configs/` | Configuration definitions and static assets.                                                                                |
+| **API**     | `api/`     | Interface definitions (IDL) and auto-generated code.                                                                        |
+| **Common**  | `common/`  | Business-agnostic shared libraries — fully generic, reusable across any project.                                            |
